@@ -11,7 +11,12 @@ const options = {
     },
     servers: [
       {
-       url: process.env.BASE_URL || "http://localhost:3001",
+        url: "https://react-2-crud-product.onrender.com",
+        description: "Production Server (Render)",
+      },
+      {
+        url: "http://localhost:3001",
+        description: "Local Development Server",
       },
     ],
     components: {
