@@ -11,7 +11,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.BASE_URL || "http://localhost:3001",
+       url: process.env.BASE_URL || "http://localhost:3001",
       },
     ],
     components: {
@@ -26,6 +26,7 @@ const options = {
     security: [{ bearerAuth: [] }],
   },
 
+
   apis: ["./app/router/*.js"],
 };
 
@@ -36,3 +37,4 @@ const setupSwagger = (app) => {
 };
 
 module.exports = setupSwagger;
+
