@@ -20,6 +20,7 @@ const app = express();
 app.use(
   cors({
     origin: [
+      "http://localhost:5173", //(frontend render in browser)
       "http://localhost:3000",
       "http://localhost:3001",
       "https://react-2-crud-product.onrender.com",
