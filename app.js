@@ -6,6 +6,7 @@ const dbConnect = require("./app/config/dbConnect");
 // Routes
 const authRoutes = require("./app/router/authRoutes");
 const productRoutes = require("./app/router/productRoutes");
+const adminRoutes =require('./app/router/adminRoutes')
 
 // Swagger
 const setupSwagger = require("./app/config/swaggerConfig");
@@ -56,6 +57,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/admin",adminRoutes);
 
 /* ======================
    404 HANDLER

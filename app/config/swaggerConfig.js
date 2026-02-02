@@ -32,7 +32,7 @@ const options = {
   },
 
 
-  apis: ["./app/router/*.js"],
+ apis: ["./app/**/*.js"],
 };
 
 const swaggerSpec = swaggerJsDoc(options);
