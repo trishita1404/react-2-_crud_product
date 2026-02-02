@@ -7,6 +7,7 @@ const {
   deleteProduct,
   searchProducts,
 } = require("../controller/ProductController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 // Multer setup
 const upload = require("../helper/multerHelper");
@@ -56,7 +57,7 @@ const upload = require("../helper/multerHelper");
  *       401:
  *         description: Unauthorized
  */
-router.post("/", upload.array("images",5), createProduct);
+router.post("/", authMiddleware, upload.array("images",5), createProduct);
 
 /**
  * @swagger
@@ -125,7 +126,7 @@ router.get("/", getAllProducts);
  *         description: Product not found
  */
 
-router.put("/:id", upload.array("images",5), updateProduct);
+router.put("/:id", authMiddleware, upload.array("images",5), updateProduct);
 
 /**
  * @swagger
@@ -150,7 +151,7 @@ router.put("/:id", upload.array("images",5), updateProduct);
  *       404:
  *         description: Product not found
  */
-router.delete("/:id", deleteProduct);
+router.delete("/:id", authMiddleware, deleteProduct);
 
 /**
  * @swagger

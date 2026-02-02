@@ -1,24 +1,46 @@
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 const Product = require("../model/Product");
 const slugify = require("../helper/slugHelper");
 
-// helper function to get user from token
-const getUserFromToken = (req) => {
-  const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    throw new Error("Access token missing");
+// Generate unique slug
+const generateUniqueSlug = async (name, productId = null) => {
+  let baseSlug = slugify(name);
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existingProduct = await Product.findOne({ slug });
+
+    // If no product found OR it's the same product being updated
+    if (!existingProduct || existingProduct._id.toString() === productId) {
+      return slug;
+    }
+
+    slug = `${baseSlug}-${counter}`;
+    counter++;
   }
-
-  const token = authHeader.split(" ")[1]; // Bearer TOKEN
-
-  return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 };
+
+
+
+// helper function to get user from token
+// const getUserFromToken = (req) => {
+//   const authHeader = req.headers.authorization;
+
+//   if (!authHeader) {
+//     throw new Error("Access token missing");
+//   }
+
+//   const token = authHeader.split(" ")[1]; // Bearer TOKEN
+
+//   return jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+// };
 
 // Create Product
 const createProduct = async (req, res) => {
   try {
-    const user = getUserFromToken(req);
+    // const user = getUserFromToken(req);
 
     const { name, description, price } = req.body;
     if (!name || !price) {
@@ -29,9 +51,9 @@ const createProduct = async (req, res) => {
       name,
       description,
       price,
-      slug: slugify(name),
+      slug: await generateUniqueSlug(name),
       images: req.files ? req.files.map(file => file.filename) : [],
-      createdBy: user.id,
+      createdBy: req.user._id,
     });
 
     res.status(201).json({ message: "Product created", product });
@@ -85,15 +107,15 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    if (product.createdBy.toString() !== user.id) {
+    if (product.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
     // Update name and slug if name changed
     if (name && name !== product.name) {
-      product.name = name;
-      product.slug = slugify(name); 
-    }
+  product.name = name;
+  product.slug = await generateUniqueSlug(name, product._id.toString());
+}
 
     // Update other fields
     product.description = description || product.description;
@@ -126,7 +148,7 @@ const deleteProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    if (product.createdBy.toString() !== user.id) {
+    if (product.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
