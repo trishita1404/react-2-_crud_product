@@ -2,7 +2,6 @@
 const Product = require("../model/Product");
 const slugify = require("../helper/slugHelper");
 
-
 // Generate unique slug
 const generateUniqueSlug = async (name, productId = null) => {
   let baseSlug = slugify(name);
@@ -22,8 +21,6 @@ const generateUniqueSlug = async (name, productId = null) => {
   }
 };
 
-
-
 // helper function to get user from token
 // const getUserFromToken = (req) => {
 //   const authHeader = req.headers.authorization;
@@ -40,9 +37,14 @@ const generateUniqueSlug = async (name, productId = null) => {
 // Create Product
 const createProduct = async (req, res) => {
   try {
-    // const user = getUserFromToken(req);
-
     const { name, description, price } = req.body;
+
+    // Temporary admin check for testing
+    const adminEmails = ["trishita@gmail.com"]; // your test admin emails
+    if (!adminEmails.includes(req.user.email)) {
+      return res.status(403).json({ message: "Admin access only (test check)" });
+    }
+
     if (!name || !price) {
       return res.status(400).json({ message: "Name and price are required" });
     }
@@ -52,18 +54,15 @@ const createProduct = async (req, res) => {
       description,
       price,
       slug: await generateUniqueSlug(name),
-      images: req.files ? req.files.map(file => file.filename) : [],
+      images: req.files ? req.files.map((file) => file.filename) : [],
       createdBy: req.user._id,
     });
 
     res.status(201).json({ message: "Product created", product });
   } catch (error) {
-    res.status(401).json({
-      message: error.message || "Unauthorized",
-    });
+    res.status(401).json({ message: error.message || "Unauthorized" });
   }
 };
-
 
 // Get All Products with Pagination
 const getAllProducts = async (req, res) => {
@@ -113,9 +112,9 @@ const updateProduct = async (req, res) => {
 
     // Update name and slug if name changed
     if (name && name !== product.name) {
-  product.name = name;
-  product.slug = await generateUniqueSlug(name, product._id.toString());
-}
+      product.name = name;
+      product.slug = await generateUniqueSlug(name, product._id.toString());
+    }
 
     // Update other fields
     product.description = description || product.description;
@@ -123,7 +122,7 @@ const updateProduct = async (req, res) => {
 
     // Update images if new files uploaded
     if (req.files && req.files.length > 0) {
-      product.images = req.files.map(file => file.filename);
+      product.images = req.files.map((file) => file.filename);
     }
 
     await product.save();
@@ -198,7 +197,6 @@ const searchProducts = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 module.exports = {
   createProduct,
